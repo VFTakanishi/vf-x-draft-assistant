@@ -1,0 +1,42 @@
+name: LINE Draft Delivery
+
+on:
+  schedule:
+    - cron: "45 21 * * *"
+    - cron: "30 2 * * *"
+    - cron: "30 8 * * *"
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: "Send a specific slot"
+        required: true
+        default: "morning"
+        type: choice
+        options:
+          - morning
+          - noon
+          - evening
+
+jobs:
+  send-draft:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Asia/Tokyo
+      LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+      LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Send scheduled slot
+        if: ${{ github.event_name == 'schedule' }}
+        run: node cloud-run.mjs
+
+      - name: Send manual slot
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: node cloud-run.mjs --slot "${{ github.event.inputs.slot }}"
