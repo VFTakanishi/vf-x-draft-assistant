@@ -12,7 +12,8 @@ function nowInJstParts() {
   const map = Object.fromEntries(parts.map((part) => [part.type, part.value]));
   return {
     date: `${map.year}-${map.month}-${map.day}`,
-    hour: Number(map.hour)
+    hour: Number(map.hour),
+    minute: Number(map.minute)
   };
 }
 
@@ -97,6 +98,23 @@ function buildDrafts(date) {
   };
 }
 
+function slotWindow(slot) {
+  const windows = {
+    morning: { startHour: 6, startMinute: 45, endHour: 6, endMinute: 59 },
+    noon: { startHour: 11, startMinute: 30, endHour: 11, endMinute: 44 },
+    evening: { startHour: 17, startMinute: 30, endHour: 17, endMinute: 44 }
+  };
+  return windows[slot];
+}
+
+function isWithinWindow(now, window) {
+  if (!window) return false;
+  const current = now.hour * 60 + now.minute;
+  const start = window.startHour * 60 + window.startMinute;
+  const end = window.endHour * 60 + window.endMinute;
+  return current >= start && current <= end;
+}
+
 async function sendLineMessage(text) {
   const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
   const userId = process.env.LINE_USER_ID;
@@ -127,19 +145,111 @@ async function sendLineMessage(text) {
   }
 }
 
+async function readDeliveryState() {
+  const repo = process.env.GITHUB_REPOSITORY;
+  const token = process.env.GITHUB_TOKEN;
+  const path = ".github/line-delivery-state.json";
+
+  if (!repo || !token) {
+    return {
+      sha: null,
+      data: { deliveries: {} }
+    };
+  }
+
+  const response = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+    headers: {
+      Accept: "application/vnd.github+json",
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  if (response.status === 404) {
+    return {
+      sha: null,
+      data: { deliveries: {} }
+    };
+  }
+
+  if (!response.ok) {
+    throw new Error(`Failed to read delivery state: ${response.status} ${await response.text()}`);
+  }
+
+  const payload = await response.json();
+  const decoded = Buffer.from(payload.content, "base64").toString("utf8");
+  return {
+    sha: payload.sha,
+    data: JSON.parse(decoded)
+  };
+}
+
+async function writeDeliveryState(nextData, sha, message) {
+  const repo = process.env.GITHUB_REPOSITORY;
+  const token = process.env.GITHUB_TOKEN;
+  const path = ".github/line-delivery-state.json";
+
+  if (!repo || !token) {
+    return;
+  }
+
+  const response = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+    method: "PUT",
+    headers: {
+      Accept: "application/vnd.github+json",
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      message,
+      content: Buffer.from(`${JSON.stringify(nextData, null, 2)}\n`, "utf8").toString("base64"),
+      sha
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to write delivery state: ${response.status} ${await response.text()}`);
+  }
+}
+
 async function main() {
   const args = parseArgs(process.argv);
   const now = nowInJstParts();
   const slot = args.slot ?? slotFromHour(now.hour);
   const drafts = buildDrafts(now.date);
+  const window = slotWindow(slot);
 
   if (!drafts[slot]) {
     throw new Error(`Unknown slot: ${slot}`);
   }
 
-  const message = drafts[slot];
+  if (!args.slot && !isWithinWindow(now, window)) {
+    console.log(`Skip ${slot}: outside delivery window`);
+    return;
+  }
 
+  const state = await readDeliveryState();
+  const deliveries = state.data.deliveries ?? {};
+  const deliveryKey = `${now.date}:${slot}`;
+
+  if (deliveries[deliveryKey]) {
+    console.log(`Skip ${slot}: already delivered for ${now.date}`);
+    return;
+  }
+
+  const message = drafts[slot];
   await sendLineMessage(message);
+
+  const nextState = {
+    deliveries: {
+      ...deliveries,
+      [deliveryKey]: {
+        deliveredAtJst: `${now.date} ${String(now.hour).padStart(2, "0")}:${String(now.minute).padStart(2, "0")}`,
+        slot
+      }
+    }
+  };
+
+  await writeDeliveryState(nextState, state.sha, `Record LINE delivery for ${deliveryKey}`);
   console.log(`Sent ${slot} draft for ${now.date}`);
 }
 
