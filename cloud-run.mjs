@@ -107,22 +107,12 @@ async function main() {
   const now = nowInJstParts();
   const slot = args.slot ?? slotFromHour(now.hour);
   const drafts = buildDrafts(now.date);
-  const labelMap = {
-    morning: "朝",
-    noon: "昼",
-    evening: "夕方"
-  };
 
   if (!drafts[slot]) {
     throw new Error(`Unknown slot: ${slot}`);
   }
 
-  const message = [
-    `X下書き ${now.date}`,
-    "",
-    `【${labelMap[slot]}】`,
-    drafts[slot]
-  ].join("\n");
+  const message = drafts[slot];
 
   await sendLineMessage(message);
   console.log(`Sent ${slot} draft for ${now.date}`);
