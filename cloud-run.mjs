@@ -17,102 +17,110 @@ function nowInJstParts() {
   };
 }
 
-function slotFromHour(hour) {
-  if (hour < 10) return "morning";
-  if (hour < 15) return "noon";
-  return "evening";
-}
-
 function parseArgs(argv) {
   const options = { slot: null };
-  for (let i = 2; i < argv.length; i += 1) {
-    if (argv[i] === "--slot") {
-      options.slot = argv[i + 1];
-      i += 1;
+  for (let index = 2; index < argv.length; index += 1) {
+    if (argv[index] === "--slot") {
+      options.slot = argv[index + 1] ?? null;
+      index += 1;
     }
   }
   return options;
-}
-
-function pick(list, seed) {
-  return list[seed % list.length];
 }
 
 function seedFrom(text) {
   return [...text].reduce((sum, char, index) => sum + char.charCodeAt(0) * (index + 1), 0);
 }
 
+function pick(list, seed) {
+  return list[seed % list.length];
+}
+
+function fillTemplate(template, replacements) {
+  return Object.entries(replacements).reduce(
+    (text, [key, value]) => text.replaceAll(`{${key}}`, value),
+    template
+  );
+}
+
 function buildDrafts(date) {
   const seed = seedFrom(date);
 
   const morningTopics = [
-    "タイヤの空気圧",
-    "ブレーキの違和感",
-    "高速に乗る前の点検",
-    "夏場のバッテリー負荷",
-    "季節の変わり目の車の変化"
+    "朝いちの違和感の拾い方",
+    "高速に乗る前のひと確認",
+    "ブレーキの感触の変化",
+    "タイヤの空気圧の見方",
+    "いつもと違う音への気づき"
   ];
 
   const noonTopics = [
     "警告灯が出たときの初動",
-    "暑い日のバッテリー負荷",
-    "雨の日の視界確保",
-    "長距離前に見るべき基本項目",
-    "エアコン使用時の燃費の考え方"
+    "暑い日の車内トラブル対策",
+    "雨の日の運転で気をつけること",
+    "バッテリーが弱る前ぶれ",
+    "エアコン不調の見分け方"
   ];
 
   const eveningTopics = [
-    "ちょっとした違和感を早めに言ってもらえること",
-    "大きな故障の前に小さいサインが出ていること",
-    "整備は派手さより丁寧さが出る仕事だということ",
-    "相談が早いほど結果的に負担が小さくなること",
-    "現場では部品だけでなく使い方の癖も見ていること"
+    "小さい違和感のうちに相談してもらえること",
+    "乗り方のクセで車の状態が変わること",
+    "壊れてからより前の相談のほうが早いこと",
+    "現場では言葉にしにくい違和感も大事なこと",
+    "こんなこと聞いていいのかなの相談が役立つこと"
   ];
 
   const morningTemplates = [
-    "{topic}って、難しいことを知っているかより『いつもと違うか』に気づけるかのほうが大事です。現場で見ても、大きい不調の前には小さい違和感がちゃんと出ています。流さないだけで防げることは結構あります。",
-    "{topic}を見るときって、完璧に分かろうとしなくて大丈夫です。昨日までと違う感じがあるかだけでも見ておくと、無駄なトラブルはかなり減ります。現場感覚だと、この差は思ったより大きいです。",
-    "{topic}で差が出るのは、詳しさより違和感を放置しないことです。整備の現場でも『まだ走れるし』で先送りしたところから話が大きくなることは少なくありません。早めに気づくだけでも十分価値があります。"
+    "{topic}って、知識があるかどうかより普段との違いに気づけるかのほうが大事です。昨日までと何か違うなと思ったら、その感覚はだいたい当たっています。",
+    "{topic}でいちばん大事なのは、無理に詳しく判断しようとしないことです。いつもと違うかどうかだけ見ておくだけでも、トラブルの早期発見にはかなり効きます。",
+    "{topic}は、整備の知識がなくても見ておけます。まだ走れるしで流すより、昨日までと同じかどうかを一回気にするだけで変わります。",
+    "{topic}って、派手な知識より普段の感覚のほうが役に立ちます。違和感が小さいうちに止められる人ほど、大きなトラブルを避けやすいです。",
+    "{topic}は、整備士から見るとかなり大事です。なんとなく気になるの時点で拾えていると、その後の判断がだいぶ楽になります。"
   ];
 
   const noonTemplates = [
-    "{topic}って、いちばん良くないのは焦っていろいろ決めつけることです。現場でも、最初に落ち着いて症状を整理できるだけで、その後の判断はかなり変わります。まずは慌てないことが一番大事です。",
-    "{topic}で迷ったら、まず一回落ち着くのが大事です。現場でも、焦って触りすぎたことで話がややこしくなることはあります。最初に状況を整理できるだけで、その後はかなり動きやすくなります。",
-    "{topic}って、派手な知識より最初の落ち着きのほうが大事だったりします。現場でも、何が起きているかを順番に見られる人のほうが結果的に判断ミスは少ないです。まずは慌てないのが一番です。"
+    "{topic}でいちばん良くないのは、焦っていろいろ決めつけることです。まず落ち着いて、いつからか、何をした時に出たかだけ整理できると、その後の判断はかなり変わります。",
+    "{topic}って、慌てて動くより先に状況を整理するのが大事です。現場でも、最初に落ち着いて症状を分けられるだけで見立てはかなり変わります。",
+    "{topic}で迷ったら、まずは大きく決めつけないことです。急いで結論を出すより、出方やタイミングを落ち着いて見るほうが結果的に早いです。",
+    "{topic}は、最初の受け止め方でその後が変わります。焦って自己判断を増やすより、今どういう状態かを静かに整理するほうがずっと大事です。",
+    "{topic}って、すぐ答えを出したくなるんですが、まず慌てないことが一番です。症状を落ち着いて見られるだけで、余計な遠回りはかなり減ります。"
   ];
 
   const eveningTemplates = [
-    "{topic}って、現場にいると本当によく感じます。車のことって、深刻になってからより『ちょっと気になる』の段階で話してもらえるほうが助かります。結果的にそのほうが話も早いです。",
-    "{topic}は、日々の現場で何度も思うことです。大きく壊れてからだと選べる手が減るので、少し気になる時点で相談してもらえるほうがずっと動きやすいです。気軽なくらいでちょうどいいです。",
-    "{topic}は、整備をしていると自然と実感します。こちらとしても『こんなことで聞いていいのかな』くらいの段階で言ってもらえるほうが見やすいです。遠慮しない相談のほうが結局うまくいきます。"
+    "{topic}って、現場にいると本当によくあります。深刻になってからより、なんか気になるの段階で見せてもらえるほうが、やっぱり話は早いです。",
+    "{topic}は、整備をしているとかなり大事だと感じます。こんなことで聞いていいのかなと思う内容のほうが、実は早く見切れることも多いです。",
+    "{topic}って、後から振り返ると最初にサインが出ていたことが多いです。少し引っかかった時点で相談してもらえるほうが、できることは増えます。",
+    "{topic}は、こちらからすると遠慮しないでもらえると助かる部分です。大ごとになる前のひとことのほうが、結果的に負担を小さくしやすいです。",
+    "{topic}って、部品の話だけじゃなく使い方の積み重ねでも出てきます。だからこそ、ちょっとした違和感でも早めに聞いてもらえると見やすいです。"
   ];
 
-  const morningTopic = pick(morningTopics, seed);
-  const noonTopic = pick(noonTopics, seed + 7);
-  const eveningTopic = pick(eveningTopics, seed + 13);
-
   return {
-    morning: pick(morningTemplates, seed + 19).replace("{topic}", morningTopic),
-    noon: pick(noonTemplates, seed + 23).replace("{topic}", noonTopic),
-    evening: pick(eveningTemplates, seed + 29).replace("{topic}", eveningTopic)
+    morning: fillTemplate(pick(morningTemplates, seed + 11), {
+      topic: pick(morningTopics, seed + 3)
+    }),
+    noon: fillTemplate(pick(noonTemplates, seed + 17), {
+      topic: pick(noonTopics, seed + 7)
+    }),
+    evening: fillTemplate(pick(eveningTemplates, seed + 23), {
+      topic: pick(eveningTopics, seed + 13)
+    })
   };
 }
 
 function slotWindow(slot) {
-  const windows = {
-    morning: { startHour: 6, startMinute: 45, endHour: 6, endMinute: 59 },
-    noon: { startHour: 11, startMinute: 30, endHour: 11, endMinute: 44 },
-    evening: { startHour: 17, startMinute: 30, endHour: 17, endMinute: 44 }
-  };
-  return windows[slot];
+  return {
+    morning: { startHour: 6, startMinute: 45, endHour: 7, endMinute: 15 },
+    noon: { startHour: 11, startMinute: 30, endHour: 12, endMinute: 15 },
+    evening: { startHour: 17, startMinute: 30, endHour: 18, endMinute: 15 }
+  }[slot];
 }
 
 function isWithinWindow(now, window) {
   if (!window) return false;
-  const current = now.hour * 60 + now.minute;
-  const start = window.startHour * 60 + window.startMinute;
-  const end = window.endHour * 60 + window.endMinute;
-  return current >= start && current <= end;
+  const currentMinutes = now.hour * 60 + now.minute;
+  const startMinutes = window.startHour * 60 + window.startMinute;
+  const endMinutes = window.endHour * 60 + window.endMinute;
+  return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
 }
 
 async function sendLineMessage(text) {
@@ -214,30 +222,29 @@ async function writeDeliveryState(nextData, sha, message) {
 async function main() {
   const args = parseArgs(process.argv);
   const now = nowInJstParts();
-  const slot = args.slot ?? slotFromHour(now.hour);
   const drafts = buildDrafts(now.date);
-  const window = slotWindow(slot);
+  const slot = args.slot;
 
-  if (!drafts[slot]) {
-    throw new Error(`Unknown slot: ${slot}`);
+  if (!slot || !drafts[slot]) {
+    throw new Error("Missing or invalid slot. Use --slot morning|noon|evening");
   }
+
+  const window = slotWindow(slot);
+  const state = await readDeliveryState();
+  const deliveries = state.data.deliveries ?? {};
+  const deliveryKey = `${now.date}:${slot}`;
 
   if (!args.slot && !isWithinWindow(now, window)) {
     console.log(`Skip ${slot}: outside delivery window`);
     return;
   }
 
-  const state = await readDeliveryState();
-  const deliveries = state.data.deliveries ?? {};
-  const deliveryKey = `${now.date}:${slot}`;
-
   if (deliveries[deliveryKey]) {
     console.log(`Skip ${slot}: already delivered for ${now.date}`);
     return;
   }
 
-  const message = drafts[slot];
-  await sendLineMessage(message);
+  await sendLineMessage(drafts[slot]);
 
   const nextState = {
     deliveries: {
