@@ -25,6 +25,7 @@ jobs:
     env:
       LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
       LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+      GITHUB_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,9 +35,17 @@ jobs:
         with:
           node-version: 22
 
-      - name: Send scheduled slot
-        if: ${{ github.event_name == 'schedule' }}
-        run: node cloud-run.mjs
+      - name: Send morning slot
+        if: ${{ github.event_name == 'schedule' && github.event.schedule == '45,50,55 21 * * *' }}
+        run: node cloud-run.mjs --slot morning
+
+      - name: Send noon slot
+        if: ${{ github.event_name == 'schedule' && github.event.schedule == '30,35,40 2 * * *' }}
+        run: node cloud-run.mjs --slot noon
+
+      - name: Send evening slot
+        if: ${{ github.event_name == 'schedule' && github.event.schedule == '30,35,40 8 * * *' }}
+        run: node cloud-run.mjs --slot evening
 
       - name: Send selected slot
         if: ${{ github.event_name == 'workflow_dispatch' }}
