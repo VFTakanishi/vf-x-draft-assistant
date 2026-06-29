@@ -3,6 +3,10 @@
     "2026-06-29:morning": {
       "deliveredAtJst": "2026-06-29 08:28",
       "slot": "morning"
+    },
+    "2026-06-29:noon": {
+      "deliveredAtJst": "2026-06-29 11:46",
+      "slot": "noon"
     }
   }
 }
