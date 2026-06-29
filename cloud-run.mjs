@@ -47,54 +47,51 @@ function buildDrafts(date) {
   const seed = seedFrom(date);
 
   const morningTopics = [
-    "タイヤの空気圧",
+    "タイヤの違和感",
     "ブレーキの踏み始め",
-    "高速に乗る前のひと確認",
+    "走り出しの小さな変化",
     "朝いちのエンジン音",
-    "ハンドルの違和感",
-    "走り出しの感覚"
+    "ハンドルの手応え",
+    "季節の変わり目の点検"
   ];
 
   const noonTopics = [
-    "警告灯が出たとき",
-    "暑い日のバッテリー",
-    "雨の日の視界",
-    "エアコンの効き",
-    "長距離前の点検",
-    "においや音の変化"
+    "警告灯が出たときの初動",
+    "バッテリーが弱い日の対応",
+    "檹い日の車内トラブル",
+    "エアコンの効きが悪いとき",
+    "長距離前の確認",
+    "においに気づいたときの見方"
   ];
 
   const eveningTopics = [
-    "ちょっと気になるの段階で相談してもらえること",
-    "乗り方のクセが車に出ること",
-    "大きく壊れる前に小さいサインが出ること",
-    "言葉にしづらい違和感も大事なこと",
-    "早めの相談のほうが結局ラクなこと",
-    "現場では部品だけじゃなく使い方も見ていること"
+    "ちょっと気になる違和感を放置しないこと",
+    "相談が早い人ほど大きな出費を避けやすいこと",
+    "整備って結局は普段の乗り方が出ること",
+    "言葉にしづらい不安でも先に聞くほうがいいこと",
+    "車の変化に気づける人ほど安全に近いこと",
+    "現場では小さいサインほど見逃さないこと"
   ];
 
   const morningTemplates = [
-    "{topic}って、詳しい知識があるかより、いつもと違うって気づけるかのほうが大事です。小さい違和感を流さないだけで、防げることは結構あります。",
-    "{topic}は、難しく考えすぎなくて大丈夫です。昨日までと同じかどうかを見るだけでも、トラブルの早期発見にはかなり効きます。",
-    "{topic}で差が出るのは、知識量より普段の感覚です。まだ走れるしで流す前に、一回だけ違和感がないか見ておくのがおすすめです。",
-    "{topic}って、整備の現場でも軽く見ないほうがいいところです。大きい不調の前って、だいたい小さいサインが先に出ています。",
-    "{topic}は、分かろうとしすぎなくていいです。なんかいつもと違う、その感覚だけ拾えれば十分意味があります。"
+    "{topic}って、知識があるかどうかより普段との違いに気づけるかのほうが大事です。昨日までと何か違うなと思ったら、その感覚はだいたい合っています。",
+    "{topic}で差が出るのは、派手な知識より毎日の感覚です。まだ走れるしで流すより、いつもと違うかだけ先に見ておくほうが結果的に安全です。",
+    "{topic}は大きな故障の前に小さく出ることが多いです。朝の数分で違和感を拾えるだけでも、その後のトラブルはかなり減らせます。",
+    "{topic}は、あとで振り返ると前から出ていたと言われることが多いです。気のせいかもで終わらせず、昨日との違いだけ見ておくのが大事です。"
   ];
 
   const noonTemplates = [
-    "{topic}でいちばん良くないのは、焦っていろいろ決めつけることです。まず落ち着いて、いつからか、何をした時に出たかだけ整理できると、その後の判断はかなり変わります。",
-    "{topic}って、すぐ答えを出したくなるんですが、まず慌てないことが一番大事です。現場でも、最初に状況を整理できるだけで見立てはだいぶ変わります。",
-    "{topic}で迷ったら、まずは大きく自己判断しすぎないことです。症状の出方だけ落ち着いて見られると、余計な遠回りはかなり減ります。",
-    "{topic}は、最初の受け止め方でその後が変わります。焦って触りすぎるより、今どういう状態かを静かに整理するほうがずっと大事です。",
-    "{topic}って、派手な知識より最初の落ち着きのほうが大事だったりします。慌てないだけで、その後の判断ミスはかなり減らせます。"
+    "{topic}でいちばん良くないのは、焦っていろいろ決めつけることです。まず落ち着いて症状を整理できるだけで、その後の判断はかなり変わります。",
+    "{topic}は、すぐに答えを出そうとするより先に状況を切り分けるのが大事です。慌てず順番に見るだけで、余計な遠回りはかなり減ります。",
+    "{topic}って、現場でも最初の落ち着き方でその後が変わります。焦って自己判断するより、何が起きたかを整理するほうが先です。",
+    "{topic}で困ったときほど、最初の一手はシンプルなほうがいいです。慌てない、決めつけない、症状を整理する。この3つだけでも十分違います。"
   ];
 
   const eveningTemplates = [
-    "{topic}って、整備をしていると本当によくあります。深刻になってからより、なんか気になるの段階で話してもらえるほうが、やっぱり早いです。",
-    "{topic}は、現場ではかなり大事です。こんなことで聞いていいのかなと思う内容のほうが、実は早く見切れることも多いです。",
-    "{topic}って、後から振り返ると最初にサインが出ていたことが多いです。少し引っかかった時点で相談してもらえると、できることは増えます。",
-    "{topic}は、こっちからすると遠慮しないでもらえるほうが助かります。大ごとになる前のひとことのほうが、結果的に負担を小さくしやすいです。",
-    "{topic}って、本当に現場っぽい話なんですが、早めに聞いてもらえるほうが見やすいです。気軽なくらいの相談のほうが、むしろ助かります。"
+    "{topic}。現場で見ていても、早めに聞いてもらえたケースほど話が早いです。大事になる前に止められることは意外と多いです。",
+    "{topic}。整備って結局、壊れてからより違和感の段階で動けるかどうかが大きいです。迷った時点で聞くのは全然早すぎません。",
+    "{topic}。実際、あとから見れば小さいサインだったということは多いです。だからこそ、気になった時点で相談してもらえるのがいちばん助かります。",
+    "{topic}。はっきり故障していなくても、気になる感覚には意味があることが多いです。迷うくらいなら早めに聞くほうが結果的に安心です。"
   ];
 
   return {
@@ -124,6 +121,15 @@ function isWithinWindow(now, window) {
   const startMinutes = window.startHour * 60 + window.startMinute;
   const endMinutes = window.endHour * 60 + window.endMinute;
   return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+}
+
+function detectActiveSlot(now) {
+  for (const slot of ["morning", "noon", "evening"]) {
+    if (isWithinWindow(now, slotWindow(slot))) {
+      return slot;
+    }
+  }
+  return null;
 }
 
 async function sendLineMessage(text) {
@@ -226,21 +232,20 @@ async function main() {
   const args = parseArgs(process.argv);
   const now = nowInJstParts();
   const drafts = buildDrafts(now.date);
-  const slot = args.slot;
+  const slot = args.slot ?? detectActiveSlot(now);
 
-  if (!slot || !drafts[slot]) {
-    throw new Error("Missing or invalid slot. Use --slot morning|noon|evening");
+  if (!slot) {
+    console.log(`Skip: outside delivery window at ${now.date} ${String(now.hour).padStart(2, "0")}:${String(now.minute).padStart(2, "0")} JST`);
+    return;
   }
 
-  const window = slotWindow(slot);
+  if (!drafts[slot]) {
+    throw new Error("Invalid slot. Use --slot morning|noon|evening");
+  }
+
   const state = await readDeliveryState();
   const deliveries = state.data.deliveries ?? {};
   const deliveryKey = `${now.date}:${slot}`;
-
-  if (!args.slot && !isWithinWindow(now, window)) {
-    console.log(`Skip ${slot}: outside delivery window`);
-    return;
-  }
 
   if (deliveries[deliveryKey]) {
     console.log(`Skip ${slot}: already delivered for ${now.date}`);
