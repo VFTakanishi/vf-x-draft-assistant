@@ -3,8 +3,11 @@ name: LINE Draft Delivery
 on:
   schedule:
     - cron: "45,50,55 21 * * *"
-    - cron: "30,35,40 2 * * *"
-    - cron: "30,35,40 8 * * *"
+    - cron: "0,5,10,15 22 * * *"
+    - cron: "30,35,40,45,50,55 2 * * *"
+    - cron: "0,5,10,15 3 * * *"
+    - cron: "30,35,40,45,50,55 8 * * *"
+    - cron: "0,5,10,15 9 * * *"
   workflow_dispatch:
     inputs:
       slot:
@@ -36,15 +39,15 @@ jobs:
           node-version: 22
 
       - name: Send morning slot
-        if: ${{ github.event_name == 'schedule' && github.event.schedule == '45,50,55 21 * * *' }}
+        if: ${{ github.event_name == 'schedule' && (github.event.schedule == '45,50,55 21 * * *' || github.event.schedule == '0,5,10,15 22 * * *') }}
         run: node cloud-run.mjs --slot morning
 
       - name: Send noon slot
-        if: ${{ github.event_name == 'schedule' && github.event.schedule == '30,35,40 2 * * *' }}
+        if: ${{ github.event_name == 'schedule' && (github.event.schedule == '30,35,40,45,50,55 2 * * *' || github.event.schedule == '0,5,10,15 3 * * *') }}
         run: node cloud-run.mjs --slot noon
 
       - name: Send evening slot
-        if: ${{ github.event_name == 'schedule' && github.event.schedule == '30,35,40 8 * * *' }}
+        if: ${{ github.event_name == 'schedule' && (github.event.schedule == '30,35,40,45,50,55 8 * * *' || github.event.schedule == '0,5,10,15 9 * * *') }}
         run: node cloud-run.mjs --slot evening
 
       - name: Send selected slot
