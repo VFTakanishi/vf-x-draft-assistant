@@ -109,9 +109,9 @@ function buildDrafts(date) {
 
 function slotWindow(slot) {
   return {
-    morning: { startHour: 6, startMinute: 45, endHour: 7, endMinute: 15 },
-    noon: { startHour: 11, startMinute: 30, endHour: 12, endMinute: 15 },
-    evening: { startHour: 17, startMinute: 30, endHour: 18, endMinute: 15 }
+    morning: { startHour: 6, startMinute: 30, endHour: 8, endMinute: 0 },
+    noon: { startHour: 11, startMinute: 20, endHour: 12, endMinute: 40 },
+    evening: { startHour: 17, startMinute: 20, endHour: 18, endMinute: 40 }
   }[slot];
 }
 
