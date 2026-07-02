@@ -36,76 +36,44 @@ function pick(list, seed) {
   return list[seed % list.length];
 }
 
-function fillTemplate(template, replacements) {
-  return Object.entries(replacements).reduce(
-    (text, [key, value]) => text.replaceAll(`{${key}}`, value),
-    template
-  );
-}
-
-function buildDrafts(date) {
-  const seed = seedFrom(date);
-
-  const morningTopics = [
-    "タイヤの違和感",
-    "ブレーキの踏み始め",
-    "走り出しの小さな変化",
-    "朝いちのエンジン音",
-    "ハンドルの手応え",
-    "季節の変わり目の点検"
-  ];
-
-  const noonTopics = [
-    "警告灯が出たときの初動",
-    "バッテリーが弱い日の対応",
-    "檹い日の車内トラブル",
-    "エアコンの効きが悪いとき",
-    "長距離前の確認",
-    "においに気づいたときの見方"
-  ];
-
-  const eveningTopics = [
-    "ちょっと気になる違和感を放置しないこと",
-    "相談が早い人ほど大きな出費を避けやすいこと",
-    "整備って結局は普段の乗り方が出ること",
-    "言葉にしづらい不安でも先に聞くほうがいいこと",
-    "車の変化に気づける人ほど安全に近いこと",
-    "現場では小さいサインほど見逃さないこと"
-  ];
-
-  const morningTemplates = [
-    "{topic}って、知識があるかどうかより普段との違いに気づけるかのほうが大事です。昨日までと何か違うなと思ったら、その感覚はだいたい合っています。",
-    "{topic}で差が出るのは、派手な知識より毎日の感覚です。まだ走れるしで流すより、いつもと違うかだけ先に見ておくほうが結果的に安全です。",
-    "{topic}は大きな故障の前に小さく出ることが多いです。朝の数分で違和感を拾えるだけでも、その後のトラブルはかなり減らせます。",
-    "{topic}は、あとで振り返ると前から出ていたと言われることが多いです。気のせいかもで終わらせず、昨日との違いだけ見ておくのが大事です。"
-  ];
-
-  const noonTemplates = [
-    "{topic}でいちばん良くないのは、焦っていろいろ決めつけることです。まず落ち着いて症状を整理できるだけで、その後の判断はかなり変わります。",
-    "{topic}は、すぐに答えを出そうとするより先に状況を切り分けるのが大事です。慌てず順番に見るだけで、余計な遠回りはかなり減ります。",
-    "{topic}って、現場でも最初の落ち着き方でその後が変わります。焦って自己判断するより、何が起きたかを整理するほうが先です。",
-    "{topic}で困ったときほど、最初の一手はシンプルなほうがいいです。慌てない、決めつけない、症状を整理する。この3つだけでも十分違います。"
-  ];
-
-  const eveningTemplates = [
-    "{topic}。現場で見ていても、早めに聞いてもらえたケースほど話が早いです。大事になる前に止められることは意外と多いです。",
-    "{topic}。整備って結局、壊れてからより違和感の段階で動けるかどうかが大きいです。迷った時点で聞くのは全然早すぎません。",
-    "{topic}。実際、あとから見れば小さいサインだったということは多いです。だからこそ、気になった時点で相談してもらえるのがいちばん助かります。",
-    "{topic}。はっきり故障していなくても、気になる感覚には意味があることが多いです。迷うくらいなら早めに聞くほうが結果的に安心です。"
-  ];
-
-  return {
-    morning: fillTemplate(pick(morningTemplates, seed + 11), {
-      topic: pick(morningTopics, seed + 3)
-    }),
-    noon: fillTemplate(pick(noonTemplates, seed + 17), {
-      topic: pick(noonTopics, seed + 7)
-    }),
-    evening: fillTemplate(pick(eveningTemplates, seed + 23), {
-      topic: pick(eveningTopics, seed + 13)
-    })
-  };
-}
+const SLOT_DRAFTS = {
+  morning: [
+    "おはようございます。出発前に車を軽く見ておくだけでも、防げるトラブルはけっこうあります。タイヤが少し潰れていないか、下に変な液が垂れていないか。毎日乗っている人の「いつもと違う」は本当に大事です。今日も安全運転でいきましょう！",
+    "おはようございます。最近「エンジンのかかりが少し重い気がする」という話は増えています。いきなり動かなくなる前に、昨日までと少し違うかを見ておくだけでもかなり違います。今日も安全運転でいきましょう！",
+    "おはようございます。最近、暑くなってきてエアコンを使う時間が一気に増えてきました。この時期はバッテリーに負担がかかりやすいです。エンジンのかかりが少し鈍いかもと思ったら、その感覚はけっこう大事です。今日も安全運転でいきましょう！",
+    "おはようございます。出発前に車をぐるっと一周見るだけでも、防げるトラブルはけっこうあります。タイヤの空気圧や下回りの違和感みたいな「いつもと違う」は、毎日乗っている人だから気づけることです。今日も安全運転でいきましょう！",
+    "おはようございます。最近の現場でも、タイヤの違和感を後回しにして大きくなる流れはよくあります。気のせいで流さずに、昨日との違いだけでも見ておくのが大事です。今日も安全運転でいきましょう！",
+    "おはようございます。ワイパーって動いていれば大丈夫と思われがちですが、拭きムラがあるだけで雨の日の疲れ方はかなり変わります。こういう小さい違和感ほど早めに見ておくのが大事です。今日も安全運転でいきましょう！",
+    "おはようございます。ブレーキの踏み始めって、後から思うと前から少し違っていたと言われることが多いです。難しいことより、普段と違う感覚を雑に流さないほうが結果的に安全です。今日も安全運転でいきましょう！",
+    "おはようございます。最近は冷却水まわりの変化を見落としていたという話も増えています。大きな故障の話ではなくても、「昨日までと何か違う」の段階で見ておくのは本当に大事です。今日も安全運転でいきましょう！",
+    "おはようございます。朝の一発目でエンジンのかかり方がいつもと違う時って、後から振り返るとサインだったということがよくあります。こういう感覚はけっこう当たります。今日も安全運転でいきましょう！",
+    "おはようございます。最近、空気圧が少し低いまま乗っていたという話は本当によくあります。毎日見ている車ほど変化に慣れてしまうので、出発前に少しだけ意識して見るのが大事です。今日も安全運転でいきましょう！"
+  ],
+  noon: [
+    "最近、警告灯が出たときの相談は増えています。こういう時に焦って「もうダメかも」と決めつけるのはあまり良くないです。まずはいつ出たのか、走りに変化があるのか、そのあたりを落ち着いて見ておくのが大事です。",
+    "最近、ブレーキの違和感についての相談は増えています。こういう時に焦って大丈夫だろうと決めつけるのはあまり良くないです。踏み始めがいつもと違うかどうか、そのくらいから見ておくのが大事です。",
+    "最近、警告灯が出たときの相談は増えています。こういう時にいちばん良くないのは、焦って原因を決めつけることです。まずは慌てずに、いつから出たのか、走りは変わったのかを見るだけでも違います。",
+    "最近、ブレーキの踏み始めに違和感があるという相談は増えています。こういうのは気のせいで終わることもありますが、後から思うと前から出ていたと言われることも多いです。慌てて決めつけず、まずはいつもと違うかを見ておくのが大事です。",
+    "最近、雨の日の見えにくさについての相談は増えています。ワイパーが動いているから大丈夫と思っていても、拭きムラがあるだけで疲れ方はかなり変わります。夜や高速を走る前に一度見ておくのが大事です。",
+    "最近、高速に乗る前の点検について聞かれることが増えています。難しいことを全部やるより、タイヤ、警告灯、ブレーキの感覚、このあたりを見るだけでもかなり違います。",
+    "最近、バッテリーが怪しいと感じたときの相談は増えています。こういう時にまだ大丈夫だろうで流すと、出先で急に困ることがあります。かかり方がいつもより重いかどうか、その感覚は見ておいたほうが良いです。",
+    "最近、暑い日のエアコン使用で負担が増えている話はよくあります。エアコンが効くかだけでなく、エンジンのかかり方やアイドリングの感じが少し違わないかも見ておくと安心です。",
+    "最近、雨の日の見落としって本当に多いです。昼は平気でも夜になると一気に見えにくくなることがあります。ワイパーやガラスの状態は早めに見ておくのが大事です。",
+    "ニュースや現場でも、警告灯やブレーキの違和感を後回しにしていたという話はよくあります。すぐに大ごとだと思い込むより、いつからか、どういう場面で出るかを見ておくほうが判断しやすいです。"
+  ],
+  evening: [
+    "今日もお疲れ様です。思い返すと前から少し変だったという話はよく聞きます。気のせいかもで流さずに、「なんか気になる」の段階で話してもらえるほうが安心です。",
+    "今日もお疲れ様です。現場にいると、思い返すと前から少し違和感が出ていたという話は本当によくあります。気のせいかもで流さずに、「なんか気になる」の段階で話してもらえるほうがやっぱり安心です。",
+    "今日もお疲れ様です。現場にいると、「まだ走れるし」でそのままになっていた話は本当によくあります。大きな故障になってからより、少し気になる段階で話してもらえるほうがやっぱり安心です。",
+    "今日もお疲れ様です。現場にいると、音や振動の違和感って説明しにくいことが本当によくあります。でも、その説明しにくい感じが大事なことも多いです。うまく言えなくても、少し気になる段階で話してもらえるほうが安心です。",
+    "今日もお疲れ様です。後から思うと前から少し違っていたという話は本当によくあります。大きく壊れてからより、「あれ、なんか違うかも」の段階で見せてもらえるほうが早いです。",
+    "今日もお疲れ様です。最近よく思うのは、違和感って大きくなってからより小さいうちのほうが拾いやすいということです。気のせいで終わらせずに、少しでも気になった時点で話してもらえると助かります。",
+    "今日もお疲れ様です。毎日乗っている人だからこそ気づける変化ってあります。説明しにくくても、その違和感が大事なことは本当によくあります。少しでも気になった時点で見ておくのが大事です。",
+    "今日もお疲れ様です。現場にいると、「なんか気になるけど説明しにくい」という相談は本当によくあります。でも、そういう時ほどちゃんと見ておいたほうが良いことが多いです。",
+    "今日もお疲れ様です。後から振り返ると、前から少し音が違ったとか、振動が気になっていたとか、そういう話は本当によくあります。気のせいで流さずに、違和感の段階で話してもらえるほうが安心です。",
+    "今日もお疲れ様です。完全に動かなくなってからより、少し気になる段階で相談してもらえるほうがやっぱり助かります。現場にいると、その差は本当に大きいです。"
+  ]
+};
 
 function slotWindow(slot) {
   return {
@@ -130,6 +98,39 @@ function detectActiveSlot(now) {
     }
   }
   return null;
+}
+
+function parseDateAsUtc(dateText) {
+  return new Date(`${dateText}T00:00:00Z`);
+}
+
+function dayDiff(dateA, dateB) {
+  const diffMs = parseDateAsUtc(dateA).getTime() - parseDateAsUtc(dateB).getTime();
+  return Math.floor(diffMs / 86400000);
+}
+
+function recentTextsForSlot(history, slot, date, minGapDays) {
+  return new Set(
+    history
+      .filter((item) => item.slot === slot)
+      .filter((item) => {
+        const diff = dayDiff(date, item.date);
+        return diff >= 0 && diff < minGapDays;
+      })
+      .map((item) => item.text)
+  );
+}
+
+function selectDraft(slot, date, history) {
+  const pool = SLOT_DRAFTS[slot];
+  if (!pool || pool.length === 0) {
+    throw new Error(`No drafts configured for slot: ${slot}`);
+  }
+
+  const blockedTexts = recentTextsForSlot(history, slot, date, 7);
+  const allowedPool = pool.filter((text) => !blockedTexts.has(text));
+  const fallbackPool = allowedPool.length > 0 ? allowedPool : pool;
+  return pick(fallbackPool, seedFrom(`${slot}:${date}`));
 }
 
 async function sendLineMessage(text) {
@@ -170,7 +171,7 @@ async function readDeliveryState() {
   if (!repo || !token) {
     return {
       sha: null,
-      data: { deliveries: {} }
+      data: { deliveries: {}, history: [] }
     };
   }
 
@@ -184,7 +185,7 @@ async function readDeliveryState() {
   if (response.status === 404) {
     return {
       sha: null,
-      data: { deliveries: {} }
+      data: { deliveries: {}, history: [] }
     };
   }
 
@@ -194,9 +195,14 @@ async function readDeliveryState() {
 
   const payload = await response.json();
   const decoded = Buffer.from(payload.content, "base64").toString("utf8");
+  const parsed = JSON.parse(decoded);
+
   return {
     sha: payload.sha,
-    data: JSON.parse(decoded)
+    data: {
+      deliveries: parsed.deliveries ?? {},
+      history: parsed.history ?? []
+    }
   };
 }
 
@@ -231,7 +237,6 @@ async function writeDeliveryState(nextData, sha, message) {
 async function main() {
   const args = parseArgs(process.argv);
   const now = nowInJstParts();
-  const drafts = buildDrafts(now.date);
   const slot = args.slot ?? detectActiveSlot(now);
 
   if (!slot) {
@@ -239,12 +244,9 @@ async function main() {
     return;
   }
 
-  if (!drafts[slot]) {
-    throw new Error("Invalid slot. Use --slot morning|noon|evening");
-  }
-
   const state = await readDeliveryState();
   const deliveries = state.data.deliveries ?? {};
+  const history = state.data.history ?? [];
   const deliveryKey = `${now.date}:${slot}`;
 
   if (deliveries[deliveryKey]) {
@@ -252,16 +254,28 @@ async function main() {
     return;
   }
 
-  await sendLineMessage(drafts[slot]);
+  const text = selectDraft(slot, now.date, history);
+  await sendLineMessage(text);
+
+  const nextHistory = [
+    ...history,
+    {
+      date: now.date,
+      slot,
+      text
+    }
+  ].slice(-120);
 
   const nextState = {
     deliveries: {
       ...deliveries,
       [deliveryKey]: {
         deliveredAtJst: `${now.date} ${String(now.hour).padStart(2, "0")}:${String(now.minute).padStart(2, "0")}`,
-        slot
+        slot,
+        text
       }
-    }
+    },
+    history: nextHistory
   };
 
   await writeDeliveryState(nextState, state.sha, `Record LINE delivery for ${deliveryKey}`);
