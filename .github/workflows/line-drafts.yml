@@ -2,7 +2,12 @@ name: LINE Draft Delivery
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "45,50,55 21 * * *"
+    - cron: "0 22 * * *"
+    - cron: "45,50,55 2 * * *"
+    - cron: "0 3 * * *"
+    - cron: "45,50,55 8 * * *"
+    - cron: "0 9 * * *"
   workflow_dispatch:
     inputs:
       slot:
@@ -33,9 +38,17 @@ jobs:
         with:
           node-version: 22
 
-      - name: Send scheduled draft
-        if: ${{ github.event_name == 'schedule' }}
-        run: node cloud-run.mjs
+      - name: Send morning draft
+        if: ${{ github.event_name == 'schedule' && (github.event.schedule == '45,50,55 21 * * *' || github.event.schedule == '0 22 * * *') }}
+        run: node cloud-run.mjs --slot morning
+
+      - name: Send noon draft
+        if: ${{ github.event_name == 'schedule' && (github.event.schedule == '45,50,55 2 * * *' || github.event.schedule == '0 3 * * *') }}
+        run: node cloud-run.mjs --slot noon
+
+      - name: Send evening draft
+        if: ${{ github.event_name == 'schedule' && (github.event.schedule == '45,50,55 8 * * *' || github.event.schedule == '0 9 * * *') }}
+        run: node cloud-run.mjs --slot evening
 
       - name: Send selected slot
         if: ${{ github.event_name == 'workflow_dispatch' }}
